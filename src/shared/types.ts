@@ -132,6 +132,8 @@ export interface ColophonApi {
   detectors(): Promise<Record<DetectorId, DetectorState>>;
   downloadDetector(id: DetectorId): Promise<void>;
   cancelDownload(id: DetectorId): void;
+  /** Opens Microsoft's download page for the Visual C++ Redistributable the detector depends on. */
+  openRuntimeDownload(): void;
   detect(path: string, id: DetectorId): Promise<DetectionResult>;
   onDetectorState(listener: (id: DetectorId, state: DetectorState) => void): () => void;
   onDetectionProgress(listener: (progress: DetectionProgress) => void): () => void;

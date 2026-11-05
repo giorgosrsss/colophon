@@ -93,8 +93,12 @@ Node can set a file's access and modification times but not its creation time, s
 through .NET on Windows. Windows Search tends to read a freshly saved file a few seconds later,
 which moves its access date; Colophon watches for that briefly after a save and puts it back.
 
-The detectors' tokenizers (byte-level BPE for RoBERTa, SentencePiece unigram for DeBERTa) are
-implemented in `src/core` and were checked token for token against Hugging Face `tokenizers`.
+The detectors run in a separate Electron utility process that starts with the first check and
+exits a few minutes after the last one, so a native failure can only end the check, and the large
+model's memory is given back. ONNX Runtime needs the Visual C++ runtime, which a fresh Windows
+install doesn't have; the packaged app carries those DLLs next to the runtime. The tokenizers
+(byte-level BPE for RoBERTa, SentencePiece unigram for DeBERTa) are implemented in `src/core` and
+were checked token for token against Hugging Face `tokenizers`.
 
 ## Project layout
 

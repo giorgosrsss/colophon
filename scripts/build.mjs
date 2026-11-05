@@ -19,13 +19,15 @@ const shared = {
 const builds = [
   {
     ...shared,
-    entryPoints: { main: 'src/main/main.ts' },
+    entryPoints: { main: 'src/main/main.ts', 'detector-worker': 'src/main/detector-worker.ts' },
     outExtension: { '.js': '.cjs' },
     outdir: 'dist',
     platform: 'node',
     format: 'cjs',
     target: 'node22',
     external: ['electron', 'onnxruntime-node'],
+    // Lazy imports of the native runtime become plain require() calls, which load from the asar archive.
+    supported: { 'dynamic-import': false },
   },
   {
     ...shared,

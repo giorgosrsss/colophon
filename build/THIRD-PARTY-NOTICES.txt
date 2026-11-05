@@ -3,6 +3,8 @@ Colophon includes the following third-party software and models.
 Electron 45.0.0, MIT License, https://github.com/electron/electron
   Chromium and its components are listed in LICENSES.chromium.html in this folder.
 ONNX Runtime 1.31.1, MIT License, https://github.com/microsoft/onnxruntime
+Microsoft Visual C++ Runtime 14 (msvcp140*.dll, vcruntime140*.dll), redistributed under the
+  Visual Studio redistribution terms, next to ONNX Runtime in resources/app.asar.unpacked.
 React and React DOM 19.3.1, MIT License, https://react.dev
 JSZip 3.10.2, MIT License (dual-licensed with GPL-3.0), https://stuk.github.io/jszip
 @xmldom/xmldom 0.9.12, MIT License, https://github.com/xmldom/xmldom

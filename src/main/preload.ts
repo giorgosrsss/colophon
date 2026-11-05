@@ -29,6 +29,7 @@ const api: ColophonApi = {
   detectors: () => call('detectors'),
   downloadDetector: (id) => call('download-detector', id),
   cancelDownload: (id) => ipcRenderer.send('cancel-download', id),
+  openRuntimeDownload: () => ipcRenderer.send('open-runtime-download'),
   detect: (path, id) => call('detect', path, id),
   onDetectorState: (listener) => subscribe('detector-state', listener),
   onDetectionProgress: (listener) => subscribe('detection-progress', listener),

@@ -24,6 +24,8 @@ const ancestors = new Set(
   KEEP.flatMap((path) => path.split('/').slice(1, -1).map((_, i, parts) => `/${parts.slice(0, i + 1).join('/')}`)),
 );
 
+const VC_RUNTIME = ['msvcp140.dll', 'msvcp140_1.dll', 'msvcp140_atomic_wait.dll', 'vcruntime140.dll', 'vcruntime140_1.dll'];
+
 const keep = (file) => file === '' || ancestors.has(file) || KEEP.some((path) => file === path || file.startsWith(`${path}/`));
 
 const [out] = await packager({
@@ -46,6 +48,17 @@ const [out] = await packager({
     CompanyName: 'Colophon',
   },
 });
+
+// ONNX Runtime links against the Visual C++ runtime, which a fresh Windows install doesn't have.
+// Microsoft allows these DLLs to be deployed next to the code that uses them, so they go in the
+// same folder as the native binding and Windows finds them there first.
+const runtimeDir = join(out, 'resources', 'app.asar.unpacked', 'node_modules', 'onnxruntime-node', 'bin', 'napi-v6', 'win32', 'x64');
+const system32 = join(process.env.SystemRoot ?? 'C:\\Windows', 'System32');
+for (const dll of VC_RUNTIME) {
+  await copyFile(join(system32, dll), join(runtimeDir, dll)).catch(() => {
+    throw new Error(`${dll} was not found in ${system32}. Install the Visual C++ Redistributable (x64) and package again.`);
+  });
+}
 
 await copyFile(join(root, 'build', 'THIRD-PARTY-NOTICES.txt'), join(out, 'THIRD-PARTY-NOTICES.txt'));
 console.log(`Packaged ${join(out, 'Colophon.exe')}`);

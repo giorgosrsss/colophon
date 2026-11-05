@@ -5,7 +5,7 @@ import type { IpcMainInvokeEvent } from 'electron';
 import { DETECTORS } from '../shared/detectors.ts';
 import type { DetectorId } from '../shared/detectors.ts';
 import type { Fields, IpcResult, Preferences } from '../shared/types.ts';
-import { Detector } from './detector.ts';
+import { DetectorProcess } from './detector-process.ts';
 import { UserError } from './errors.ts';
 import { bodyText, DOCUMENT_EXTENSIONS, isDocumentPath, openDocument, saveDocument } from './files.ts';
 import { ModelStore } from './models.ts';
@@ -21,6 +21,9 @@ const CHROME = {
 };
 
 const FILTERS = [{ name: 'Word documents', extensions: DOCUMENT_EXTENSIONS }];
+
+/** Microsoft's permanent link to the latest x64 Visual C++ Redistributable. */
+const VC_RUNTIME_DOWNLOAD = 'https://aka.ms/vs/17/release/vc_redist.x64.exe';
 
 let window: BrowserWindow | null = null;
 let dirty = false;
@@ -51,7 +54,8 @@ function start(): void {
   const models = new ModelStore(bundledModels, join(userData, 'models'));
 
   registerHandlers(new RecentDocuments(userData));
-  registerDetection(models, new Detector((id) => models.dir(id)), new PreferenceStore(userData));
+  const detector = new DetectorProcess(join(__dirname, 'detector-worker.cjs'), (id) => models.dir(id));
+  registerDetection(models, detector, new PreferenceStore(userData));
   window = createWindow();
 }
 
@@ -166,7 +170,7 @@ function registerHandlers(recent: RecentDocuments): void {
   });
 }
 
-function registerDetection(models: ModelStore, detector: Detector, preferences: PreferenceStore): void {
+function registerDetection(models: ModelStore, detector: DetectorProcess, preferences: PreferenceStore): void {
   const send = (channel: string, ...args: unknown[]) => {
     if (window && !window.isDestroyed()) window.webContents.send(channel, ...args);
   };
@@ -191,6 +195,7 @@ function registerDetection(models: ModelStore, detector: Detector, preferences: 
   });
 
   ipcMain.on('cancel-download', (_event, id: DetectorId) => models.cancel(id));
+  ipcMain.on('open-runtime-download', () => shell.openExternal(VC_RUNTIME_DOWNLOAD));
 
   handle('detect', async (_event, path: string, id: DetectorId) => {
     if ((await models.state(id)).status !== 'ready') throw new UserError(`The ${DETECTORS[id].name} model isn't downloaded yet.`);

@@ -1,11 +1,30 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import * as ort from 'onnxruntime-node';
+import type * as Ort from 'onnxruntime-node';
 import { ByteLevelBpe } from '../core/bpe.ts';
 import { combineSections, splitSections } from '../core/sections.ts';
 import type { Tokenizer } from '../core/sections.ts';
 import { UnigramTokenizer } from '../core/unigram.ts';
 import type { DetectionProgress, DetectionResult, DetectorId } from '../shared/detectors.ts';
+import { UserError } from './errors.ts';
+
+export const MISSING_RUNTIME =
+  'The AI detector couldn’t start because a Windows component it needs is missing: the Microsoft Visual C++ Redistributable. Install it from Microsoft, then restart Colophon.';
+
+let onnxRuntime: Promise<typeof Ort> | null = null;
+
+/**
+ * ONNX Runtime is a native module, so it loads on first use rather than at startup. If a
+ * system library it depends on is missing, only the AI check is affected.
+ */
+function loadRuntime(): Promise<typeof Ort> {
+  onnxRuntime ??= import('onnxruntime-node').catch((error: unknown) => {
+    onnxRuntime = null;
+    console.error('Could not load ONNX Runtime:', error);
+    throw new UserError(MISSING_RUNTIME);
+  });
+  return onnxRuntime;
+}
 
 interface Layout {
   modelFile: string;
@@ -46,17 +65,18 @@ const LAYOUTS: Record<DetectorId, Layout> = {
   },
 };
 
-interface Runtime {
+interface LoadedModel {
   id: DetectorId;
-  session: ort.InferenceSession;
+  ort: typeof Ort;
+  session: Ort.InferenceSession;
   tokenizer: Tokenizer;
 }
 
 /** Keeps one model in memory at a time; the large one alone takes about 2 GB. */
 export class Detector {
   private readonly locate: (id: DetectorId) => string;
-  private runtime: Promise<Runtime> | null = null;
-  private runtimeId: DetectorId | null = null;
+  private model: Promise<LoadedModel> | null = null;
+  private modelId: DetectorId | null = null;
 
   constructor(locate: (id: DetectorId) => string) {
     this.locate = locate;
@@ -69,7 +89,7 @@ export class Detector {
   ): Promise<DetectionResult> {
     const started = performance.now();
     const layout = LAYOUTS[id];
-    const { session, tokenizer } = await this.load(id);
+    const { ort, session, tokenizer } = await this.load(id);
     const sections = splitSections(paragraphs, tokenizer, layout.window);
 
     const probabilities: number[] = [];
@@ -96,29 +116,30 @@ export class Detector {
   }
 
   async release(): Promise<void> {
-    const current = this.runtime;
-    this.runtime = null;
-    this.runtimeId = null;
+    const current = this.model;
+    this.model = null;
+    this.modelId = null;
     if (current) await (await current.catch(() => null))?.session.release();
   }
 
-  private async load(id: DetectorId): Promise<Runtime> {
-    if (this.runtime && this.runtimeId === id) return this.runtime;
+  private async load(id: DetectorId): Promise<LoadedModel> {
+    if (this.model && this.modelId === id) return this.model;
     await this.release();
 
     const dir = this.locate(id);
     const layout = LAYOUTS[id];
-    this.runtimeId = id;
-    this.runtime = Promise.all([
-      ort.InferenceSession.create(join(dir, layout.modelFile), { graphOptimizationLevel: 'all' }),
-      layout.tokenizer(dir),
-    ]).then(([session, tokenizer]) => ({ id, session, tokenizer }));
+    const session = loadRuntime().then(async (ort) => ({
+      ort,
+      session: await ort.InferenceSession.create(join(dir, layout.modelFile), { graphOptimizationLevel: 'all' }),
+    }));
+    this.modelId = id;
+    this.model = Promise.all([session, layout.tokenizer(dir)]).then(([loaded, tokenizer]) => ({ id, ...loaded, tokenizer }));
 
     try {
-      return await this.runtime;
+      return await this.model;
     } catch (error) {
-      this.runtime = null;
-      this.runtimeId = null;
+      this.model = null;
+      this.modelId = null;
       throw error;
     }
   }

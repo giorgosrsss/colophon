@@ -1,7 +1,7 @@
 {
   "name": "colophon",
   "productName": "Colophon",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Read and edit the properties of Word documents, with a local AI-writing check.",
   "author": "George Roussos",
   "license": "MIT",

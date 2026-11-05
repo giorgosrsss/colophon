@@ -1,9 +1,10 @@
-import { ArrowClockwiseIcon, DownloadSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { ArrowClockwiseIcon, ArrowSquareOutIcon, DownloadSimpleIcon, XIcon } from '@phosphor-icons/react';
 import type { ReactNode } from 'react';
 import { MIN_WORDS } from '../../core/writing.ts';
 import { DETECTORS } from '../../shared/detectors.ts';
 import type { DetectionResult, DetectorInfo, DetectorState } from '../../shared/detectors.ts';
 import type { MarkedSentence, WritingAssessment, WritingSignal } from '../../shared/types.ts';
+import { api } from '../api.ts';
 import { verdictOf } from '../detection.ts';
 import type { Detection, Verdict } from '../detection.ts';
 import { formatDownloadSize, formatNumber, plural } from '../format.ts';
@@ -100,11 +101,18 @@ function ModelPanel({ detection }: { detection: Detection }) {
   }
 
   if (detection.error) {
+    const runtimeMissing = detection.error.includes('Visual C++');
     return (
       <section className="verdict">
         <h2>The check didn’t finish</h2>
         <p className="verdict-error">{detection.error}</p>
         <div className="verdict-actions">
+          {runtimeMissing && (
+            <button className="button button-accent" onClick={api.openRuntimeDownload}>
+              <ArrowSquareOutIcon />
+              Get it from Microsoft
+            </button>
+          )}
           <button className="button button-secondary" onClick={detection.retry}>
             <ArrowClockwiseIcon />
             Try again
