@@ -1,6 +1,9 @@
-// Builds release/Colophon-win32-x64/Colophon.exe. The app's own code is bundled into dist/;
-// the only module shipped as-is is ONNX Runtime, whose native binaries can't be bundled,
-// and only its Windows x64 build. The standard model rides along as a resource.
+// Builds release/Colophon-win32-x64/Colophon.exe and a zip of it for publishing. The app's
+// own code is bundled into dist/; the only module shipped as-is is ONNX Runtime, whose native
+// binaries can't be bundled, and only its Windows x64 build. The standard model rides along
+// as a resource.
+import { execFileSync } from 'node:child_process';
+import { copyFile, readdir, readFile, rm } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { packager } from '@electron/packager';
@@ -44,4 +47,14 @@ const [out] = await packager({
   },
 });
 
+await copyFile(join(root, 'build', 'THIRD-PARTY-NOTICES.txt'), join(out, 'THIRD-PARTY-NOTICES.txt'));
 console.log(`Packaged ${join(out, 'Colophon.exe')}`);
+
+// Windows' own tar (bsdtar) writes zip files. The app's files sit at the top of the archive,
+// so "Extract All" gives a folder named after the zip.
+const { version } = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
+const zip = join(root, 'release', `Colophon-${version}-win-x64.zip`);
+await rm(zip, { force: true });
+const tar = join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'tar.exe');
+execFileSync(tar, ['-a', '-c', '-f', zip, '-C', out, ...(await readdir(out))]);
+console.log(`Zipped ${zip}`);
