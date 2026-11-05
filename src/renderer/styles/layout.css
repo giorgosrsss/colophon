@@ -1,0 +1,197 @@
+.app {
+  display: grid;
+  grid-template-rows: 40px minmax(0, 1fr);
+  height: 100%;
+}
+
+/* Title bar. The right padding keeps clear of the native window buttons. */
+
+.titlebar {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 calc(100vw - env(titlebar-area-width, 100vw) + 8px) 0 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--chrome);
+  font-size: 12.5px;
+}
+
+.titlebar button {
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-brand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.titlebar-doc {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  color: var(--text-muted);
+}
+
+.titlebar-doc > svg {
+  flex: none;
+  color: var(--text-faint);
+}
+
+.titlebar-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titlebar-state {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--sunken);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.titlebar-open {
+  flex: none;
+  height: 28px;
+  margin-left: auto;
+  padding: 0 10px;
+  font-size: 12.5px;
+}
+
+/* Two panes: the document on the left, its record on the right. */
+
+.workspace {
+  display: grid;
+  grid-template-columns: clamp(320px, 33vw, 440px) minmax(0, 1fr);
+  min-height: 0;
+}
+
+.record-pane {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+  background: var(--chrome);
+}
+
+.record-scroll {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.record-column {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px 44px 56px;
+}
+
+.actionbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px 12px 28px;
+  border-top: 1px solid var(--line);
+  background: var(--chrome);
+}
+
+.actionbar-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.actionbar-status[data-pending] {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.actionbar-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Layers: drop overlay above content, toasts above everything. */
+
+.drop-overlay {
+  position: fixed;
+  inset: 40px 0 0;
+  z-index: 20;
+  display: grid;
+  padding: 16px;
+  background: color-mix(in srgb, var(--chrome) 80%, transparent);
+  backdrop-filter: blur(3px);
+  animation: fade-in 140ms var(--ease-out);
+}
+
+.drop-target {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  border: 1.5px dashed var(--accent);
+  border-radius: var(--radius-surface);
+  background: color-mix(in srgb, var(--accent-soft) 60%, transparent);
+  color: var(--accent-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toasts {
+  position: fixed;
+  bottom: 76px;
+  left: 50%;
+  z-index: 30;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(560px, 80vw);
+  padding: 9px 15px 9px 12px;
+  border-radius: 9px;
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 13px;
+  box-shadow: var(--toast-shadow);
+  animation: toast-in 240ms var(--ease-out);
+}
+
+.toast svg {
+  flex: none;
+  opacity: 0.85;
+}
+
+.toast[data-tone='error'] svg {
+  color: var(--toast-danger);
+  opacity: 1;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

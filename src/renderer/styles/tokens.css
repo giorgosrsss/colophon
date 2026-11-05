@@ -1,0 +1,89 @@
+:root {
+  color-scheme: light;
+
+  --font-ui: 'Geist Variable', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Cascadia Mono', Consolas, monospace;
+
+  --chrome: #f6f7f8;
+  --canvas: #e8eaed;
+  --raised: #fdfdfd;
+  --sunken: #eff1f3;
+
+  --text: #1b1d22;
+  --text-muted: #5b616c;
+  --text-faint: #6e747e;
+
+  --line: #e2e5e9;
+  --line-strong: #cdd1d7;
+  --line-hover: #b5bac2;
+
+  --accent: #2f55d4;
+  --accent-hover: #2848b9;
+  --accent-text: #2848b9;
+  --accent-soft: #e9eefc;
+  --on-accent: #fbfcff;
+
+  --warn: #8f5500;
+  --warn-soft: #fbf2e1;
+  --good: #1f7546;
+  --good-soft: #e3f2e9;
+  --danger: #b3261e;
+
+  --ink: #1b1d22;
+  --on-ink: #f6f7f8;
+
+  --page: #fefefd;
+  --page-text: #1f2024;
+  --page-shadow: 0 1px 2px rgb(24 29 40 / 0.08), 0 14px 32px -14px rgb(24 29 40 / 0.3);
+
+  --focus-ring: 0 0 0 3px rgb(47 85 212 / 0.2);
+  --toast-shadow: 0 8px 24px -8px rgb(24 29 40 / 0.35);
+  --toast-danger: #ff9286;
+
+  --radius-control: 7px;
+  --radius-surface: 12px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --chrome: #131417;
+    --canvas: #0c0d0f;
+    --raised: #1a1b1f;
+    --sunken: #16171a;
+
+    --text: #e4e6ea;
+    --text-muted: #9ba1ab;
+    --text-faint: #858b95;
+
+    --line: #24262b;
+    --line-strong: #33363d;
+    --line-hover: #484c55;
+
+    --accent: #7c96ff;
+    --accent-hover: #94aaff;
+    --accent-text: #9cb0ff;
+    --accent-soft: rgb(124 150 255 / 0.13);
+    --on-accent: #0c1022;
+
+    --warn: #e5aa52;
+    --warn-soft: rgb(229 170 82 / 0.13);
+    --good: #6fca95;
+    --good-soft: rgb(111 202 149 / 0.13);
+    --danger: #f08a80;
+
+    --ink: #e4e6ea;
+    --on-ink: #131417;
+
+    --page: #e7e7e4;
+    --page-text: #1f2024;
+    --page-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 18px 40px -16px rgb(0 0 0 / 0.7);
+
+    --focus-ring: 0 0 0 3px rgb(124 150 255 / 0.28);
+    --toast-shadow: 0 10px 28px -8px rgb(0 0 0 / 0.6);
+    --toast-danger: #b3261e;
+  }
+}

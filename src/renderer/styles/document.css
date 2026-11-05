@@ -1,0 +1,141 @@
+.document-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  min-height: 0;
+  padding: 32px clamp(24px, 3vw, 40px) 26px;
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  background: var(--canvas);
+}
+
+.document-pane > * {
+  width: 100%;
+  max-width: 320px;
+}
+
+.document-figure {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.document-figure figcaption {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* The page is laid out at real size (816 by 1056 px) and scaled down, so line breaks fall
+   roughly where Word puts them. */
+
+.sheet {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 8.5 / 11;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--page);
+  box-shadow: var(--page-shadow);
+}
+
+.sheet-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 816px;
+  height: 1056px;
+  padding: 96px;
+  color: var(--page-text);
+  opacity: 0;
+  transform-origin: 0 0;
+  transition: opacity 260ms var(--ease-out);
+}
+
+.sheet-page[data-ready] {
+  opacity: 1;
+}
+
+.sheet-text {
+  height: 100%;
+  overflow: hidden;
+}
+
+.sheet-text p {
+  margin: 0 0 8pt;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sheet-text [data-kind='title'] {
+  margin-bottom: 6pt;
+  font-size: 2.35em;
+  line-height: 1.08;
+}
+
+.sheet-text [data-kind='heading'] {
+  margin: 14pt 0 4pt;
+  font-size: 1.6em;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.sheet-blank {
+  color: #8c8f95;
+  font-style: italic;
+}
+
+.document-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.document-stats dt {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.document-stats dd {
+  margin: 1px 0 0;
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.document-stats small {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 450;
+  letter-spacing: 0;
+}
+
+.document-file {
+  display: grid;
+  gap: 3px;
+  margin-top: auto;
+  font-size: 12.5px;
+}
+
+.document-folder {
+  overflow: hidden;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: text;
+}
+
+.document-meta {
+  color: var(--text-faint);
+}
+
+.document-file .link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 4px;
+  margin-top: 6px;
+}
